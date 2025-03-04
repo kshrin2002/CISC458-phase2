@@ -46,6 +46,41 @@ static void parse_error(ParseError error, Token token) {
         case PARSE_ERROR_INVALID_EXPRESSION:
             printf("Invalid expression after '%s'\n", token.lexeme);
             break;
+
+        // Part of TODO 2: -dharsan (expand)
+        /*
+        You must improve or build upon these error messages!
+        */
+        case PARSE_ERROR_MISSING_OPENING_PARENTHESIS:
+            printf("Missing opening parenthesis after '%s'\n", token.lexeme);
+            break;
+        case PARSE_ERROR_MISSING_CLOSING_PARENTHESIS:
+            printf("Missing closing parenthesis for expression starting with '%s'\n", token.lexeme);
+            break;
+        case PARSE_ERROR_MISSING_CONDITION:
+            printf("Missing condition after '%s'\n", token.lexeme);
+            break;
+        case PARSE_ERROR_MISSING_OPENING_BRACE:
+            printf("Missing opening brace '{' after '%s'\n", token.lexeme);
+            break;
+        case PARSE_ERROR_MISSING_CLOSING_BRACE:
+            printf("Missing closing brace '}' for block starting with '%s'\n", token.lexeme);
+            break;
+        case PARSE_ERROR_INVALID_OPERATOR:
+            printf("Invalid operator '%s'\n", token.lexeme);
+            break;
+        case PARSE_ERROR_FUNCTION_CALL_NO_ARGUMENTS:
+            printf("Function '%s' called with no arguments but requires some\n", token.lexeme);
+            break;
+        case PARSE_ERROR_FUNCTION_CALL_INVALID_ARGUMENT:
+            printf("Invalid argument in call to function '%s'\n", token.lexeme);
+            break;
+        case PARSE_ERROR_FUNCTION_CALL_TOO_MANY_ARGUMENTS:
+            printf("Too many arguments in call to function '%s'\n", token.lexeme);
+            break;
+        case PARSE_ERROR_FUNCTION_UNDEFINED:
+            printf("Call to undefined function '%s'\n", token.lexeme);
+            break;
         default:
             printf("Unknown error\n");
     }
