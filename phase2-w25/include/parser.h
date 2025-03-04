@@ -13,6 +13,13 @@ typedef enum {
     AST_NUMBER,         // Number literal
     AST_IDENTIFIER,     // Variable name
     // TODO: Add more node types as needed
+    // Added by Shrinidhi
+    AST_IF,             // If statement
+    AST_WHILE,          // While loop       
+    AST_REPEAT,         // Repeat until loop
+    AST_BLOCK,          // Block statements
+    AST_FUNCTIONCALL    // Function call for factorial(x)
+    // End of added
 } ASTNodeType;
 
 typedef enum {

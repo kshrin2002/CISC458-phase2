@@ -14,6 +14,17 @@
 // - blocks: { statement1; statement2; }
 // - factorial function: factorial(x)
 
+//Added by Shrinidhi
+static ASTNode* parse_if_statement(void);
+static ASTNode* parse_while_statement(void);
+static ASTNode* parse_repeat_statement(void);
+static ASTNode* parse_print_statement(void);
+static ASTNode* parse_block(void);
+static ASTNode* parse_factorial(void);
+
+static ASTNode *parse_statement(void);
+static ASTNode *parse_expression(void);
+// End of added
 
 // Current token being processed
 static Token current_token;
@@ -83,18 +94,85 @@ static void expect(TokenType type) {
     }
 }
 
-// Forward declarations
-static ASTNode *parse_statement(void);
 
+// Added by Shrinidhi
 // TODO 3: Add parsing functions for each new statement type
-// static ASTNode* parse_if_statement(void) { ... }
-// static ASTNode* parse_while_statement(void) { ... }
-// static ASTNode* parse_repeat_statement(void) { ... }
-// static ASTNode* parse_print_statement(void) { ... }
-// static ASTNode* parse_block(void) { ... }
-// static ASTNode* parse_factorial(void) { ... }
 
-static ASTNode *parse_expression(void);
+// If statement parsing: if (condition) statement
+static ASTNode* parse_if_statement(void) { 
+    ASTNode *node = create_node(AST_IF);
+    advance();
+    expect(TOKEN_LPAREN); // expect left parantheses
+    node -> left = parse_expression(); // condition 
+    expect(TOKEN_RPAREN); // closing right parantheses
+    node -> right = parse_statement(); // statement after if
+    return node;
+
+}
+
+// While loop parsing: while (condition) statement
+static ASTNode* parse_while_statement(void) { 
+    ASTNode *node = create_node(AST_WHILE);
+    advance();
+    expect(TOKEN_LPAREN);
+    node -> left = parse_expression(); // condition 
+    expect(TOKEN_RPAREN);
+    node -> right = parse_statement(); // loop body 
+    return node;
+
+}
+
+// Repeat-until loop parsing: repeat statement until (condition)
+static ASTNode* parse_repeat_statement(void) { 
+    ASTNode *node = create_node(AST_REPEAT);
+    advance();
+    node -> left = parse_statement(); 
+    if (!match(TOKEN_UNTIL)){
+        parse_error(PARSE_ERROR_UNEXPECTED_TOKEN, current_token);
+        exit(1);
+    }
+    advance();
+    expect(TOKEN_LPAREN);
+    node -> right = parse_expression(); // condition
+    expect(TOKEN_RPAREN);
+    return node;
+
+}
+
+// Print statement parsing: print expression
+static ASTNode* parse_print_statement(void) { 
+    ASTNode *node = create_node(AST_PRINT);
+    advance();
+    node -> left = parse_expression(); 
+    if (!match(TOKEN_SEMICOLON)) {
+        parse_error(PARSE_ERROR_MISSING_SEMICOLON,current_token);
+        exit(1);
+    }
+    advance();
+    return node;
+}
+
+// Block parsing
+static ASTNode* parse_block(void) { 
+    expect(TOKEN_LBRACE);
+    ASTNode *block_node = create_node(AST_BLOCK);
+    ASTNode *current = NULL;
+    expect(TOKEN_RBRACE);
+    return block_node;
+}
+
+// Factorial function call parsing
+static ASTNode* parse_factorial(void) { 
+     ASTNode *node = create_node(AST_FUNCTIONCALL);
+     node -> token = current_token
+     advance();
+     expect(TOKEN_LPAREN);
+     node -> left = parse_expression();
+     expect(TOKEN_RPAREN);
+     return node;
+
+}
+
 
 // Parse variable declaration: int x;
 static ASTNode *parse_declaration(void) {
