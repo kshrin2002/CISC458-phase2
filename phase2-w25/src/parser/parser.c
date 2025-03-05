@@ -282,22 +282,103 @@ static ASTNode *parse_statement(void) {
 // - Parentheses grouping
 // - Function calls
 
-static ASTNode *parse_expression(void) {
-    ASTNode *node;
+// static ASTNode *parse_expression(void) {
+//     ASTNode *node;
+//
+//     if (match(TOKEN_NUMBER)) { // Numbers
+//         node = create_node(AST_NUMBER);
+//         advance();
+//     } else if (match(TOKEN_IDENTIFIER)) { // Identifiers
+//         node = create_node(AST_IDENTIFIER);
+//         advance();
+//     } else if (match(TOKEN_LPAREN)) { // Parentheses grouping
+//         advance();
+//         node = parse_expression();
+//         expect(TOKEN_RPAREN);
+//     } else if (match(TOKEN_OPERATOR)) { // Binary operations (+-*/)
+//         node = create_node(AST_BINOP);
+//         node->token = current_token;
+//         advance();
+//         node->left = parse_expression();
+//         node->right = parse_expression();
+//     } else {
+//         printf("Syntax Error: Expected expression\n");
+//         exit(1);
+//     }
+//
+//     return node;
+// }
 
-    if (match(TOKEN_NUMBER)) {
-        node = create_node(AST_NUMBER);
+static ASTNode *parse_expression_prec(int);
+
+static ASTNode *parse_primary(void) {
+    if (match(TOKEN_NUMBER)) { // If the current token is a number
+        ASTNode *node = create_node(AST_NUMBER);
         advance();
-    } else if (match(TOKEN_IDENTIFIER)) {
-        node = create_node(AST_IDENTIFIER);
+        return node;
+    } else if (match(TOKEN_IDENTIFIER)) { // If the token is an identifier
+        ASTNode *node = create_node(AST_IDENTIFIER);
         advance();
-    } else {
-        printf("Syntax Error: Expected expression\n");
-        exit(1);
+
+        if (match(TOKEN_LPAREN)) { // If the identifier is followed by '(', it's a function call
+            node->type = AST_FUNCTIONCALL;
+            advance();
+            // node->args = parse_argument_list(); // Parse function arguments
+            expect(TOKEN_RPAREN);
+        }
+
+        return node;
+    } else if (match(TOKEN_LPAREN)) { // If the token is '(', parse a parenthesized expression
+        advance();
+        ASTNode *node = parse_expression_prec(0); // Start parsing with the lowest precedence
+        expect(TOKEN_RPAREN);
+        return node;
     }
 
-    return node;
+    printf("Syntax Error: Expected primary expression\n");
+    exit(1);
 }
+
+#include <string.h> // for strcmp
+
+static int get_precedence(Token op) {
+    if (strcmp(op.lexeme, "+") == 0 || strcmp(op.lexeme, "-") == 0) {
+        return 1;  // Addition and subtraction (low precedence)
+    } else if (strcmp(op.lexeme, "*") == 0 || strcmp(op.lexeme, "/") == 0) {
+        return 2;  // Multiplication and division (higher precedence)
+    } else if (strcmp(op.lexeme, "<") == 0 || strcmp(op.lexeme, ">") == 0 || strcmp(op.lexeme, "==") == 0) {
+        return 0; // Comparison operators (lowest precedence)
+    } else {
+        return -1; // Unknown operator
+    }
+}
+
+static ASTNode *parse_expression_prec(int min_precedence) {
+    ASTNode *lhs = parse_primary();
+
+    while (match(TOKEN_OPERATOR) && get_precedence(current_token) >= min_precedence) {
+        Token op = current_token; // Store the current operator
+        advance();
+
+        int precedence = get_precedence(op);
+        ASTNode *rhs = parse_expression_prec(0); // Parse the right-hand side (RHS) with correct precedence
+
+        // Create a new AST node for the operator
+        ASTNode *node = create_node(AST_OPERATOR);
+        node->token = op;
+        node->left = lhs;
+        node->right = rhs;
+        lhs = node; // Update LHS to the newly created node
+    }
+
+    return lhs;
+}
+
+/* Parses an expression starting with the lowest precedence */
+static ASTNode *parse_expression(void) {
+    return parse_expression_prec(0);
+}
+
 
 // Parse program (multiple statements)
 static ASTNode *parse_program(void) {
@@ -357,7 +438,18 @@ void print_ast(ASTNode *node, int level) {
         // case AST_WHILE: printf("While\n"); break;
         // case AST_REPEAT: printf("Repeat-Until\n"); break;
         // case AST_BLOCK: printf("Block\n"); break;
-        // case AST_BINOP: printf("BinaryOp: %s\n", node->token.lexeme); break;
+        case AST_BINOP:
+            printf("BinaryOp: %s\n", node->token.lexeme);
+            break;
+        case AST_COMP:
+            printf("Comparison: %s\n", node->token.lexeme);
+            break;
+        case AST_FUNCTIONCALL:
+            printf("FunctionCall: %s\n", node->token.lexeme);
+        break;
+        case AST_OPERATOR:
+            printf("Operator: %s\n", node->token.lexeme);
+        break;
         default:
             printf("Unknown node type\n");
     }
@@ -378,15 +470,28 @@ void free_ast(ASTNode *node) {
 // Main function for testing
 int main() {
     // Test with both valid and invalid inputs
-    const char *input = "int x;\n" // Valid declaration
-            "x = 42;\n"; // Valid assignment;
+    // const char *input = "int x;\n" // Valid declaration
+    //         "x = 42;\n"; // Valid assignment;
+
+    const char *input = "int x;\n"
+                        "x = 42 * (3 + 1);";
+
     // TODO 8: Add more test cases and read from a file:
     const char *invalid_input = "int x;\n"
                                 "x = 42;\n"
                                 "int ;";
 
-    printf("Parsing input:\n%s\n", invalid_input);
-    parser_init(invalid_input);
+    // printf("Parsing input:\n%s\n", invalid_input);
+    // parser_init(invalid_input);
+    // ASTNode *ast = parse();
+    //
+    // printf("\nAbstract Syntax Tree:\n");
+    // print_ast(ast, 0);
+    //
+    // free_ast(ast);
+
+    printf("Parsing input:\n%s\n", input);
+    parser_init(input);
     ASTNode *ast = parse();
 
     printf("\nAbstract Syntax Tree:\n");
