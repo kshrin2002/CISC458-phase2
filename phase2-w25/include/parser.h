@@ -18,13 +18,8 @@ typedef enum {
     AST_WHILE,          // While loop       
     AST_REPEAT,         // Repeat until loop
     AST_BLOCK,          // Block statements
-    AST_FUNCTIONCALL    // Function call for factorial(x)
+    AST_FUNCTIONCALL,    // Function call for factorial(x)
     // End of added
-    // added new node types as used in to do 6 - dharsan
-    AST_IF,
-    AST_WHILE,
-    AST_REPEAT,
-    AST_BLOCK,
     AST_BINOP
 } ASTNodeType;
 

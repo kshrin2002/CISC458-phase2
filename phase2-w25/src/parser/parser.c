@@ -33,7 +33,7 @@ static const char *source;
 
 
 static void parse_error(ParseError error, Token token) {
-    // TODO 2: Add more error types for:
+    // TODO 2: Add more error types for: - done
     // - Missing parentheses
     // - Missing condition
     // - Missing block braces
@@ -62,19 +62,19 @@ static void parse_error(ParseError error, Token token) {
         /*
         You must improve or build upon these error messages!
         */
-        case PARSE_ERROR_MISSING_OPENING_PARENTHESIS:
+        case PARSE_ERROR_MISSING_L_PARENTHESIS:
             printf("Missing opening parenthesis after '%s'\n", token.lexeme);
             break;
-        case PARSE_ERROR_MISSING_CLOSING_PARENTHESIS:
+        case PARSE_ERROR_MISSING_R_PARENTHESIS:
             printf("Missing closing parenthesis for expression starting with '%s'\n", token.lexeme);
             break;
         case PARSE_ERROR_MISSING_CONDITION:
             printf("Missing condition after '%s'\n", token.lexeme);
             break;
-        case PARSE_ERROR_MISSING_OPENING_BRACE:
+        case PARSE_ERROR_MISSING_L_BRACE:
             printf("Missing opening brace '{' after '%s'\n", token.lexeme);
             break;
-        case PARSE_ERROR_MISSING_CLOSING_BRACE:
+        case PARSE_ERROR_MISSING_R_BRACE:
             printf("Missing closing brace '}' for block starting with '%s'\n", token.lexeme);
             break;
         case PARSE_ERROR_INVALID_OPERATOR:
@@ -199,7 +199,7 @@ static ASTNode* parse_block(void) {
 // Factorial function call parsing
 static ASTNode* parse_factorial(void) { 
      ASTNode *node = create_node(AST_FUNCTIONCALL);
-     node -> token = current_token
+     node -> token = current_token;
      advance();
      expect(TOKEN_LPAREN);
      node -> left = parse_expression();

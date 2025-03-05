@@ -19,7 +19,8 @@ typedef enum {
     TOKEN_ERROR,
     // added new tokens - DR
     TOKEN_WHILE,
-    TOKEN_REPEAT
+    TOKEN_REPEAT,
+    TOKEN_UNTIL
 } TokenType;
 
 typedef enum {
