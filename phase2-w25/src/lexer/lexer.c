@@ -9,6 +9,7 @@
 
 static int current_line = 1;
 static char last_token_type = 'x';
+static int current_column = 1; // yash. we keep track of the column number, starting with 1.
 
 // Keywords table
 static struct {
@@ -79,16 +80,20 @@ void print_token(Token token) {
 }
 
 Token get_next_token(const char* input, int* pos) {
-    Token token = {TOKEN_ERROR, "", current_line, ERROR_NONE};
+    Token token = {TOKEN_ERROR, "", current_line, current_column, ERROR_NONE}; // added current_column - yash
     char c;
 
     // Skip whitespace and track line numbers
     while ((c = input[*pos]) != '\0' && (c == ' ' || c == '\n' || c == '\t')) {
         if (c == '\n') {
             current_line++;
+            current_column = 1; // reset column number when we get a new line.
+        } else {
+            current_column++;
         }
         (*pos)++;
     }
+    token.column = current_column; //set startign column for this token
 
     if (input[*pos] == '\0') {
         token.type = TOKEN_EOF;
@@ -104,6 +109,7 @@ Token get_next_token(const char* input, int* pos) {
         do {
             token.lexeme[i++] = c;
             (*pos)++;
+            current_column++; // update column for each digit read.
             c = input[*pos];
         } while (isdigit(c) && i < sizeof(token.lexeme) - 1);
 
@@ -118,6 +124,7 @@ Token get_next_token(const char* input, int* pos) {
         do {
             token.lexeme[i++] = c;
             (*pos)++;
+            current_column++; // update column for each character read.
             c = input[*pos];
         } while ((isalnum(c) || c == '_') && i < sizeof(token.lexeme) - 1);
 
@@ -135,6 +142,7 @@ Token get_next_token(const char* input, int* pos) {
 
     // Handle operators and delimiters
     (*pos)++;
+    current_column++; // update column for the operator or delimiter.
     token.lexeme[0] = c;
     token.lexeme[1] = '\0';
 

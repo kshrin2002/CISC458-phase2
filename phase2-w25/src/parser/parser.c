@@ -189,9 +189,25 @@ static ASTNode* parse_print_statement(void) {
 
 // Block parsing
 static ASTNode* parse_block(void) { 
-    expect(TOKEN_LBRACE);
-    ASTNode *block_node = create_node(AST_BLOCK);
-    ASTNode *current = NULL;
+    expect(TOKEN_LBRACE); //left opening brace
+    ASTNode *block_node = create_node(AST_BLOCK); // create new ast node for the block
+
+    ASTNode *current = NULL; // helpful for chaining statements
+    // now, we parse the statements until we hit the closing brace.
+    while (!match(TOKEN_RBRACE) && current_token.type != TOKEN_EOF) {
+        // single statement parsing
+        ASTNode *statement = parse_statement();
+        // now if we are looking at the first statement in the block, attatch it as the left child.
+        if (block_node -> left == NULL) {
+            block_node -> left = statement;
+        } else {
+            // if we are not looking at the first statement, chain the statements together.
+            current -> right = statement;
+        }
+        // update the last statement to the current statement
+        current = statement;
+    }
+    // eat the closing brace 
     expect(TOKEN_RBRACE);
     return block_node;
 }
@@ -259,6 +275,8 @@ static ASTNode *parse_statement(void) {
         return parse_declaration();
     } else if (match(TOKEN_IDENTIFIER)) {
         return parse_assignment();
+    } else if (match(TOKEN_LBRACE)) { // new case for left brace - yash
+        return parse_block();
     }
 
     // TODO 4: Add cases for new statement types
@@ -289,8 +307,16 @@ static ASTNode *parse_expression(void) {
         node = create_node(AST_NUMBER);
         advance();
     } else if (match(TOKEN_IDENTIFIER)) {
+        // check if the identifier is a 'factorial' function call
+        if (strcmp(current_token.lexeme == "factorial") == 0) {
+            // call factorial function parsing
+            return parse_factorial();
+            //node = parse_factorial();
+        } else {
+            // parse identifier
         node = create_node(AST_IDENTIFIER);
         advance();
+        }
     } else {
         printf("Syntax Error: Expected expression\n");
         exit(1);
@@ -350,6 +376,11 @@ void print_ast(ASTNode *node, int level) {
             break;
         case AST_IDENTIFIER:
             printf("Identifier: %s\n", node->token.lexeme);
+            break;
+
+        //yashcases
+        case AST_FUNCTIONCALL:
+            printf("FunctionCall: %s\n", node->token.lexeme);
             break;
 
         // TODO 6: Add cases for new node types
