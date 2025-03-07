@@ -4,7 +4,7 @@
 #include "../../include/parser.h"
 #include "../../include/lexer.h"
 #include "../../include/tokens.h"
-
+#include "../../src/lexer/lexer.c"
 
 // TODO 1: Add more parsing function declarations for:
 // - if statements: if (condition) { ... }
@@ -358,17 +358,17 @@ static ASTNode *parse_expression_prec(int min_precedence) {
 
     while (match(TOKEN_OPERATOR) && get_precedence(current_token) >= min_precedence) {
         Token op = current_token; // Store the current operator
+        int precedence = get_precedence(op);
         advance();
 
-        int precedence = get_precedence(op);
-        ASTNode *rhs = parse_expression_prec(0); // Parse the right-hand side (RHS) with correct precedence
-
-        // Create a new AST node for the operator
+        // Fix: Correct precedence handling
+        ASTNode *rhs = parse_expression_prec(precedence + 1); // Enforce correct precedence
+        
         ASTNode *node = create_node(AST_OPERATOR);
         node->token = op;
         node->left = lhs;
         node->right = rhs;
-        lhs = node; // Update LHS to the newly created node
+        lhs = node;
     }
 
     return lhs;
