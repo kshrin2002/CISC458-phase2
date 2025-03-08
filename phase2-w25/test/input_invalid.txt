@@ -1,1 +1,28 @@
+// Missing semicolon (syntax)
+int x
+x = 5
 
+// Unexpected token
+x 5 = 3;
+
+// Unmatched parantheses
+x = (5 + 3;
+
+// Invalid expression/Empty condition
+if (x > ){
+    print x;
+}
+
+// Missing parantheses in while loop
+while x > 0{
+    print x;
+}
+
+// Missing identifier in declaration
+int ;
+
+// Consecutive operators (invalid syntax)
+y = 3 ++ 2;
+
+// Invalid function call
+factorial 5;
