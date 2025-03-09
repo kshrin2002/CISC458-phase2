@@ -18,9 +18,13 @@ typedef enum {
     AST_WHILE,          // While loop       
     AST_REPEAT,         // Repeat until loop
     AST_BLOCK,          // Block statements
-    AST_FUNCTIONCALL,    // Function call for factorial(x)
+    AST_FUNCTIONCALL,   // Function call for factorial(x)
     // End of added
-    AST_BINOP
+    // added new node types as used in to do 6 - dharsan
+    AST_BINOP,
+    // Added by Lucy
+    AST_COMP,
+    AST_OPERATOR,
 } ASTNodeType;
 
 typedef enum {
@@ -50,6 +54,7 @@ typedef struct ASTNode {
     struct ASTNode* left;      // Left child
     struct ASTNode* right;     // Right child
     // TODO: Add more fields if needed
+    struct ASTNode* args;
 } ASTNode;
 
 // Parser functions

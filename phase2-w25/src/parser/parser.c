@@ -4,7 +4,7 @@
 #include "../../include/parser.h"
 #include "../../include/lexer.h"
 #include "../../include/tokens.h"
-
+#include "../../src/lexer/lexer.c"
 
 // TODO 1: Add more parsing function declarations for:
 // - if statements: if (condition) { ... }
@@ -99,6 +99,8 @@ static void parse_error(ParseError error, Token token) {
 
 // Get next token
 static void advance(void) {
+
+    printf("%s\n", current_token.lexeme);
     current_token = get_next_token(source, &position);
 }
 
@@ -207,7 +209,7 @@ static ASTNode* parse_block(void) {
         // update the last statement to the current statement
         current = statement;
     }
-    // eat the closing brace 
+    // eat the closing brace
     expect(TOKEN_RBRACE);
     return block_node;
 }
@@ -300,30 +302,114 @@ static ASTNode *parse_statement(void) {
 // - Parentheses grouping
 // - Function calls
 
-static ASTNode *parse_expression(void) {
-    ASTNode *node;
+// static ASTNode *parse_expression(void) {
+//     ASTNode *node;
+//
+//     if (match(TOKEN_NUMBER)) { // Numbers
+//         node = create_node(AST_NUMBER);
+//         advance();
+//     } else if (match(TOKEN_IDENTIFIER)) { // Identifiers
+//         node = create_node(AST_IDENTIFIER);
+//         advance();
+//     } else if (match(TOKEN_LPAREN)) { // Parentheses grouping
+//         advance();
+//         node = parse_expression();
+//         expect(TOKEN_RPAREN);
+//     } else if (match(TOKEN_OPERATOR)) { // Binary operations (+-*/)
+//         node = create_node(AST_BINOP);
+//         node->token = current_token;
+//         advance();
+//         node->left = parse_expression();
+//         node->right = parse_expression();
+//     } else {
+//         printf("Syntax Error: Expected expression\n");
+//         exit(1);
+//     }
+//
+//     return node;
+// }
 
-    if (match(TOKEN_NUMBER)) {
-        node = create_node(AST_NUMBER);
+static ASTNode *parse_expression_prec(int);
+
+static ASTNode *parse_primary(void) {
+    if (match(TOKEN_NUMBER)) { // If the current token is a number
+        ASTNode *node = create_node(AST_NUMBER);
         advance();
     } else if (match(TOKEN_IDENTIFIER)) {
         // check if the identifier is a 'factorial' function call
-        if (strcmp(current_token.lexeme == "factorial") == 0) {
+        if (strcmp(current_token.lexeme,"factorial") == 0) {
             // call factorial function parsing
             return parse_factorial();
             //node = parse_factorial();
         } else {
             // parse identifier
-        node = create_node(AST_IDENTIFIER);
-        advance();
+            ASTNode *node = create_node(AST_IDENTIFIER);
+            return node;
         }
-    } else {
-        printf("Syntax Error: Expected expression\n");
-        exit(1);
+    } else if (match(TOKEN_IDENTIFIER)) { // If the token is an identifier
+        ASTNode *node = create_node(AST_IDENTIFIER);
+        advance();
+
+        if (match(TOKEN_LPAREN)) { // If the identifier is followed by '(', it's a function call
+            node->type = AST_FUNCTIONCALL;
+            advance();
+            node->args = parse_expression(); // Parse function arguments
+            expect(TOKEN_RPAREN);
+        }
+
+        return node;
+    } else if (match(TOKEN_LPAREN)) { // If the token is '(', parse a parenthesized expression
+        advance();
+        ASTNode *node = parse_expression_prec(0); // Start parsing with the lowest precedence
+        expect(TOKEN_RPAREN);
+        return node;
     }
 
-    return node;
+    printf("Syntax Error: Expected primary expression\n");
+    exit(1);
 }
+
+#include <string.h> // for strcmp
+
+static int get_precedence(Token op) {
+    if (strcmp(op.lexeme, "+") == 0 || strcmp(op.lexeme, "-") == 0) {
+        return 1;  // Addition and subtraction (low precedence)
+    } else if (strcmp(op.lexeme, "*") == 0 || strcmp(op.lexeme, "/") == 0) {
+        return 2;  // Multiplication and division (higher precedence)
+    } else if (strcmp(op.lexeme, "<") == 0 || strcmp(op.lexeme, ">") == 0 || strcmp(op.lexeme, "==") == 0) {
+        return 0; // Comparison operators (lowest precedence)
+    } else {
+        return -1; // Unknown operator
+    }
+}
+
+static ASTNode *parse_expression_prec(int min_precedence) {
+    ASTNode *lhs = parse_primary();
+
+    while (match(TOKEN_OPERATOR) && get_precedence(current_token) >= min_precedence) {
+        Token op = current_token; // Store the current operator
+        int precedence = get_precedence(op);
+        // ASTNode *rhs = parse_expression_prec(precedence); // Parse the right-hand side (RHS) with correct precedence
+        advance();
+
+        // Fix: Correct precedence handling
+        ASTNode *rhs = parse_expression_prec(precedence + 1); // Enforce correct precedence
+
+        ASTNode *node = create_node(AST_OPERATOR);
+        node->token = op;
+        node->left = lhs;
+        node->right = rhs;
+        lhs = node;
+    }
+
+    return lhs;
+}
+
+/* Parses an expression starting with the lowest precedence */
+static ASTNode *parse_expression(void) {
+    return parse_expression_prec(0);
+}
+
 
 // Parse program (multiple statements)
 static ASTNode *parse_program(void) {
@@ -388,7 +474,18 @@ void print_ast(ASTNode *node, int level) {
         // case AST_WHILE: printf("While\n"); break;
         // case AST_REPEAT: printf("Repeat-Until\n"); break;
         // case AST_BLOCK: printf("Block\n"); break;
-        // case AST_BINOP: printf("BinaryOp: %s\n", node->token.lexeme); break;
+        case AST_BINOP:
+            printf("BinaryOp: %s\n", node->token.lexeme);
+            break;
+        case AST_COMP:
+            printf("Comparison: %s\n", node->token.lexeme);
+            break;
+        case AST_FUNCTIONCALL:
+            printf("FunctionCall: %s\n", node->token.lexeme);
+        break;
+        case AST_OPERATOR:
+            printf("Operator: %s\n", node->token.lexeme);
+        break;
         default:
             printf("Unknown node type\n");
     }
@@ -416,11 +513,11 @@ int main() {
     //                             "x = 42;\n"
     //                             "int ;";
 
-                                
+
     //printf("Parsing input:\n%s\n", invalid_input);
     //parser_init(invalid_input);
 
-    
+
     // Test invalid inputs
     char input[4096];
     ASTNode *ast;
@@ -442,7 +539,7 @@ int main() {
     print_ast(ast, 0);
 
     free_ast(ast);
-    
+
 
     // Test valid inputs
     file = fopen("tests/input_valid.txt", "r");
