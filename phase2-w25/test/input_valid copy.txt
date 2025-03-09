@@ -1,24 +1,30 @@
-
+// Variable declarations
 int x;
 int y;
 
+// Assignments
 x = 42;
 y = x + 5;
 
+// Expressions with operator precedence
 z = 10 + 3 * 2;
 a = (10 + 3) * 2;
 
+// If statement with a block
 if (x > 0) {
     print x;
 }
 
+// While
 while (y < 100){
     y = y * 2;
 }
 
+// Repeat-until
 repeat {
     z = z - 1;
 } until (z == 0);
 
+// Function call
 factorial (5);
 print factorial(3);

@@ -570,32 +570,32 @@ void free_ast(ASTNode *node) {
 // Main function for testing
 int main() {
     // Test with both valid and invalid inputs
-    const char *input = "int x;\n" // Valid declaration
-            "x = 42;\n"; // Valid assignment;
-    // TODO 8: Add more test cases and read from a file:
-    const char *invalid_input = "int x;\n"
-                                "x = 42;\n"
-                                "int ;";
+    // const char *input = "int x;\n" // Valid declaration
+    //         "x = 42;\n"; // Valid assignment;
+    // // TODO 8: Add more test cases and read from a file:
+    // const char *invalid_input = "int x;\n"
+    //                             "x = 42;\n"
+    //                             "int ;";
 
 
-    printf("Parsing input:\n%s\n", invalid_input);
-    parser_init(invalid_input);
-    ASTNode *ast;
-    ast = parse();
-    printf("\nAbstract Syntax Tree:\n");
-    print_ast(ast, 0);
-    free_ast(ast);
-
-    // // Test invalid inputs
-    // char input[4096];
+    // printf("Parsing input:\n%s\n", invalid_input);
+    // parser_init(invalid_input);
     // ASTNode *ast;
-    // FILE *file;
+    // ast = parse();
+    // printf("\nAbstract Syntax Tree:\n");
+    // print_ast(ast, 0);
+    // free_ast(ast);
+
+    // Test invalid inputs
+    char input[4096];
+    ASTNode *ast;
+    FILE *file;
+
     // file = fopen("../../test/input_invalid.txt", "r");
     // if (file) {
     //     printf("\nParsing invalid test cases...\n");
     //     fread(input, sizeof(char), sizeof(input) - 1, file);
     //     fclose(file);
-
     //     parser_init(input);
     //     ast = parse();
     //     printf("\nAbstract Syntax Tree:\n");
@@ -609,21 +609,21 @@ int main() {
     // free_ast(ast);
 
 
-    // // Test valid inputs
-    // file = fopen("../../test/input_valid.txt", "r");
-    // if (file) {
-    //     printf("Parsing valid test cases...\n");
-    //     fread(input, sizeof(char), sizeof(input) - 1, file);
-    //     fclose(file);
+    // Test valid inputs
+    file = fopen("../../test/input_valid.txt", "r");
+    if (file) {
+        printf("Parsing valid test cases...\n");
+        fread(input, sizeof(char), sizeof(input) - 1, file);
+        fclose(file);
 
-    //     parser_init(input);
-    //     ASTNode *ast = parse();
-    //     printf("\nAbstract Syntax Tree:\n");
-    //     print_ast(ast, 0);
-    //     free_ast(ast);
-    // return 0;
+        parser_init(input);
+        ASTNode *ast = parse();
+        printf("\nAbstract Syntax Tree:\n");
+        print_ast(ast, 0);
+        free_ast(ast);
+    return 0;
 
 
-    // }
+    }
 
 }
