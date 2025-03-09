@@ -54,7 +54,7 @@ typedef struct ASTNode {
     struct ASTNode* left;      // Left child
     struct ASTNode* right;     // Right child
     // TODO: Add more fields if needed
-    Token args;
+    struct ASTNode* args;
 } ASTNode;
 
 // Parser functions

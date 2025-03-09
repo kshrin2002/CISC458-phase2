@@ -99,6 +99,8 @@ static void parse_error(ParseError error, Token token) {
 
 // Get next token
 static void advance(void) {
+
+    printf("%s\n", current_token.lexeme);
     current_token = get_next_token(source, &position);
 }
 
@@ -323,7 +325,7 @@ static ASTNode *parse_primary(void) {
         if (match(TOKEN_LPAREN)) { // If the identifier is followed by '(', it's a function call
             node->type = AST_FUNCTIONCALL;
             advance();
-            // node->args = parse_argument_list(); // Parse function arguments
+            node->args = parse_expression(); // Parse function arguments
             expect(TOKEN_RPAREN);
         }
 
@@ -359,11 +361,12 @@ static ASTNode *parse_expression_prec(int min_precedence) {
     while (match(TOKEN_OPERATOR) && get_precedence(current_token) >= min_precedence) {
         Token op = current_token; // Store the current operator
         int precedence = get_precedence(op);
+        // ASTNode *rhs = parse_expression_prec(precedence); // Parse the right-hand side (RHS) with correct precedence
         advance();
 
         // Fix: Correct precedence handling
         ASTNode *rhs = parse_expression_prec(precedence + 1); // Enforce correct precedence
-        
+
         ASTNode *node = create_node(AST_OPERATOR);
         node->token = op;
         node->left = lhs;
