@@ -18,7 +18,10 @@ static struct {
 } keywords[] = {
     {"if", TOKEN_IF},
     {"int", TOKEN_INT},
-    {"print", TOKEN_PRINT}
+    {"print", TOKEN_PRINT},
+    {"while", TOKEN_WHILE},
+    {"repeat", TOKEN_REPEAT},
+    {"until", TOKEN_UNTIL}
 };
 
 static int is_keyword(const char* word) {
@@ -74,6 +77,9 @@ void print_token(Token token) {
         case TOKEN_INT:        printf("INT"); break;
         case TOKEN_PRINT:      printf("PRINT"); break;
         case TOKEN_EOF:        printf("EOF"); break;
+        case TOKEN_WHILE:        printf("WHILE"); break;
+        case TOKEN_REPEAT:        printf("REPEAT"); break;
+        case TOKEN_UNTIL:        printf("UNTIL"); break;
         default:              printf("UNKNOWN");
     }
     printf(" | Lexeme: '%s' | Line: %d\n", token.lexeme, token.line);
