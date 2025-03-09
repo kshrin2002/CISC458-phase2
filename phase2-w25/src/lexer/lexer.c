@@ -153,7 +153,7 @@ Token get_next_token(const char* input, int* pos) {
     token.lexeme[1] = '\0';
 
     switch(c) {
-        case '+': case '-': case '*': case '/':
+        case '+': case '-': case '*': case '/': case '>' : case '<':
             if (last_token_type == 'o') {
                 token.error = ERROR_CONSECUTIVE_OPERATORS;
                 return token;

@@ -18,7 +18,7 @@ while (y < 100){
 
 repeat {
     z = z - 1;
-} until (z == 0);
+} until (z < 0);
 
 factorial (5);
 print factorial(3);
